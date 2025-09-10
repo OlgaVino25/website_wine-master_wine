@@ -1,7 +1,7 @@
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import datetime
-
+import pandas
 
 env = Environment(
     loader=FileSystemLoader("."), autoescape=select_autoescape(["html", "xml"])
@@ -21,9 +21,18 @@ def get_year_word(years):
         return "года"
     else:
         return "лет"
-    
 
-rendered_page = template.render(years=years, year_word=get_year_word(years))
+
+file_path = r"C:\DVMN\Layout\lesson_1\wine-master\website_wine-master_wine\wine.xlsx"
+excel_data_df = pandas.read_excel(
+    io=file_path, sheet_name="Лист1", na_values="", keep_default_na=False
+)
+
+wines = excel_data_df.to_dict(orient="records")
+
+rendered_page = template.render(
+    years=years, year_word=get_year_word(years), wines=wines
+)
 
 
 with open("index.html", "w", encoding="utf8") as file:
