@@ -2,6 +2,8 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import datetime
 import pandas
+from collections import defaultdict
+
 
 env = Environment(
     loader=FileSystemLoader("."), autoescape=select_autoescape(["html", "xml"])
@@ -23,15 +25,24 @@ def get_year_word(years):
         return "лет"
 
 
-file_path = r"C:\DVMN\Layout\lesson_1\wine-master\website_wine-master_wine\wine.xlsx"
+file_path = r"C:\DVMN\Layout\lesson_1\wine-master\website_wine-master_wine\wine2.xlsx"
 excel_data_df = pandas.read_excel(
-    io=file_path, sheet_name="Лист1", na_values="", keep_default_na=False
+    io=file_path, sheet_name="Лист1", na_values="nan", keep_default_na=False
 )
 
-wines = excel_data_df.to_dict(orient="records")
+wines_list = excel_data_df.to_dict(orient="records")
+
+grouped_wines = defaultdict(list)
+for wine in wines_list:
+    category = wine['Категория']
+    grouped_wines[category].append(wine)
+
+grouped_wines = dict(grouped_wines)
+sorted_categories = sorted(grouped_wines.keys())
+
 
 rendered_page = template.render(
-    years=years, year_word=get_year_word(years), wines=wines
+    years=years, year_word=get_year_word(years), sorted_categories=sorted_categories, grouped_wines=grouped_wines
 )
 
 
