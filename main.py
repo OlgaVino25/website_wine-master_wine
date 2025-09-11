@@ -25,7 +25,7 @@ def get_year_word(years):
         return "лет"
 
 
-file_path = r"C:\DVMN\Layout\lesson_1\wine-master\website_wine-master_wine\wine2.xlsx"
+file_path = r"C:\DVMN\Layout\lesson_1\wine-master\website_wine-master_wine\wine3.xlsx"
 excel_data_df = pandas.read_excel(
     io=file_path, sheet_name="Лист1", na_values="nan", keep_default_na=False
 )
