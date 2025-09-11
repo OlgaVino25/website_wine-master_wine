@@ -79,3 +79,11 @@ docs/_build/
 .env
 .env.local
 .htaccess
+
+index.html
+*.log
+.history/
+
+# Резервные копии Excel файлов
+*.xlsx~
+*.xls~
