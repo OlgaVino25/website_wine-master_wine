@@ -1,8 +1,11 @@
+import os
+import argparse
 import datetime
 import pandas
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from collections import defaultdict
+from pathlib import Path
 
 
 def get_year_word(years):
@@ -14,16 +17,24 @@ def get_year_word(years):
         return "лет"
 
 
-def load_wines_from_excel(file_path):
+def load_wines_from_excel(file_path, sheet_name="Лист1"):
     """Загружает данные о винах из Excel файла и группирует их по категориям"""
+    wines = load_wine_data(file_path, sheet_name)
+    return group_wines_by_category(wines)
+
+
+def load_wine_data(file_path, sheet_name):
+    """Загружает данные о винах из Excel файла и возвращает список словарей"""
     excel_data_df = pandas.read_excel(
-        io=file_path, sheet_name="Лист1", na_values="nan", keep_default_na=False
+        io=file_path, sheet_name=sheet_name, na_values="nan", keep_default_na=False
     )
+    return excel_data_df.to_dict(orient="records")
 
-    wines_list = excel_data_df.to_dict(orient="records")
 
+def group_wines_by_category(wines):
+    """Группирует вина по категориям и возвращает отсортированные категории и сгруппированные данные"""
     grouped_wines = defaultdict(list)
-    for wine in wines_list:
+    for wine in wines:
         category = wine["Категория"]
         grouped_wines[category].append(wine)
 
@@ -31,6 +42,23 @@ def load_wines_from_excel(file_path):
     sorted_categories = sorted(grouped_wines.keys())
 
     return sorted_categories, grouped_wines
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="Генерация сайта о винах из данных Excel"
+    )
+    parser.add_argument(
+        "--file-path",
+        default=os.getenv("WINE_DATA_PATH", "wine3.xlsx"),
+        help="Путь к файлу Excel с данными о винах (по умолчанию: wine3.xlsx или переменная окружения WINE_DATA_PATH)",
+    )
+    parser.add_argument(
+        "--sheet-name",
+        default=os.getenv("WINE_SHEET_NAME", "Лист1"),
+        help="Название листа в файле Excel (по умолчанию: Лист1 или переменная окружения WINE_SHEET_NAME)",
+    )
+    return parser.parse_args()
 
 
 def main():
@@ -44,10 +72,10 @@ def main():
     foundation_year = 1920
     years = current_year - foundation_year
 
-    file_path = (
-        r"C:\DVMN\Layout\lesson_1\wine-master\website_wine-master_wine\wine3.xlsx"
-    )
-    sorted_categories, grouped_wines = load_wines_from_excel(file_path)
+    args = parse_arguments()
+
+    file_path = Path(args.file_path)
+    sorted_categories, grouped_wines = load_wines_from_excel(file_path, args.sheet_name)
 
     rendered_page = template.render(
         years=years,
