@@ -50,6 +50,7 @@ def parse_arguments():
     )
     parser.add_argument(
         "--file-path",
+        type=Path,
         default=os.getenv("WINE_DATA_PATH", "wine3.xlsx"),
         help="Путь к файлу Excel с данными о винах (по умолчанию: wine3.xlsx или переменная окружения WINE_DATA_PATH)",
     )
@@ -75,7 +76,7 @@ def main():
     args = parse_arguments()
 
     file_path = Path(args.file_path)
-    sorted_categories, grouped_wines = load_wines_from_excel(file_path, args.sheet_name)
+    sorted_categories, grouped_wines = load_wines_from_excel(args.file_path, args.sheet_name)
 
     rendered_page = template.render(
         years=years,
