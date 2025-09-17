@@ -75,7 +75,6 @@ def main():
 
     args = parse_arguments()
 
-    file_path = Path(args.file_path)
     sorted_categories, grouped_wines = load_wines_from_excel(args.file_path, args.sheet_name)
 
     rendered_page = template.render(
